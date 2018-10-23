@@ -1,0 +1,22 @@
+{
+  "name": "cordova-plugin-volumemanager",
+  "version": "0.0.1",
+  "description": "",
+  "cordova": {
+    "id": "org.igs.cordova.volumemanager",
+    "platforms": ["android","ios"]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jimmy4infoteq/cordova-plugin-volume.git"
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "author": "jimmy4infoteq",
+  "license": "GPL",
+  "bugs": {
+    "url": "https://github.com/jimmy4infoteq/cordova-plugin-volume/issues"
+  },
+  "homepage": "https://github.com/jimmy4infoteq/cordova-plugin-volume#readme"
+}

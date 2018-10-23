@@ -1,1 +1,1 @@
-# cordova-plugin-volumemanager
+# cordova-plugin-volume-manager
