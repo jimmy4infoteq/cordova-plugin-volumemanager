@@ -16,6 +16,8 @@ public class volumemanager extends CordovaPlugin {
      * Member Variables
      */
 
+	private static final String PKGTAG = "volumemanager";
+
 	private Context context;
 	private AudioManager manager;
 
@@ -40,7 +42,7 @@ public class volumemanager extends CordovaPlugin {
 				String strVol= String.valueOf(currVol);
 				callbackContext.success(strVol);
 			} catch (Exception e) {
-				LOG.d(TAG, "Error :- " + e);
+				LOG.d(PKGTAG, "Error :- " + e);
 				fnStatus = false;
 			}
         } else if (action.equals("setMusicVolume")) {
@@ -50,7 +52,7 @@ public class volumemanager extends CordovaPlugin {
 				manager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
 				callbackContext.success();
 			} catch (Exception e) {
-				LOG.d(TAG, "Error :- " + e);
+				LOG.d(PKGTAG, "Error :- " + e);
 				fnStatus = false;
 			}
         }
@@ -65,7 +67,7 @@ public class volumemanager extends CordovaPlugin {
 
 			return volLevel;
 		} catch (Exception e){
-			LOG.d(TAG, "Error :- " + e);
+			LOG.d(PKGTAG, "Error :- " + e);
 			return 1;
 		}
 	}
@@ -79,7 +81,7 @@ public class volumemanager extends CordovaPlugin {
 
 			return volLevel;
 		} catch (Exception e) {
-			LOG.d(TAG, "Error :- " + e);
+			LOG.d(PKGTAG, "Error :- " + e);
 			return 1;
 		}
 	}
