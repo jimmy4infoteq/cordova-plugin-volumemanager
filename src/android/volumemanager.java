@@ -2,16 +2,22 @@ package org.igs.cordova.volumemanager;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.PluginResult;
 
+import org.apache.cordova.LOG;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.content.Context;
-import android.media.AudioManager;
+import android.media.*;
 
 public class volumemanager extends CordovaPlugin {
+    /**
+     * 
+     * Member Variables
+     */
+
+	private Context context;
+	private AudioManager manager;
 
     /**
      * Entry Point from the javascript calls
@@ -23,93 +29,58 @@ public class volumemanager extends CordovaPlugin {
      */
 	@Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+        boolean fnStatus = true;
+		context = cordova.getActivity().getApplicationContext();
+        manager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+        
         if (action.equals("getMusicVolume")) {
-            String dataArray = args.getString(0);
-            getMusicVolume(dataArray,callbackContext);
-            return true;
-        } else if (action.equals("isMuted")) {
-            String dataArray = args.getString(0);
-            getIsMuted(dataArray,callbackContext);
-            return true;
-        } else if (action.equals("toggleMuted")) {
-            String dataArray = args.getString(0);
-            toggleMuted(dataArray,callbackContext);
-            return true;
+            try {
+				int _currVol = getCurrentVolume();
+				float currVol = _currVol / 100.0f;
+				String strVol= String.valueOf(currVol);
+				callbackContext.success(strVol);
+			} catch (Exception e) {
+				LOG.d(TAG, "Error :- " + e);
+				fnStatus = false;
+			}
+        } else if (action.equals("setMusicVolume")) {
+            try {
+				int volumeToSet = (int) Math.round(args.getDouble(0) * 100.0f);
+				int volume = getVolumeToSet(volumeToSet);
+				manager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
+				callbackContext.success();
+			} catch (Exception e) {
+				LOG.d(TAG, "Error :- " + e);
+				fnStatus = false;
+			}
         }
-		return false;
-    }
-    
-    public void getMusicVolume(String dataArray, CallbackContext callbackContext) {
-        getVolume(AudioManager.STREAM_MUSIC, callbackContext);
+		return fnStatus;
     }
 
-    public void getIsMuted( 
-        String dataArray, 
-        CallbackContext callbackContext 
-    ) {
-        AudioManager manager = (AudioManager)this.cordova.getActivity().getSystemService(Context.AUDIO_SERVICE);
-        int max = manager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        int volume = manager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        if (volume != 0) {
-            callbackContext.success(0);
-        } else {
-            callbackContext.success(1);
-        }
-    }
+    private int getVolumeToSet(int percent) {
+		try {
+			int volLevel;
+			int maxVolume = manager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+			volLevel = Math.round((percent * maxVolume) / 100);
 
-    public void toggleMuted( 
-        String dataArray, 
-        CallbackContext callbackContext 
-    ) {
-        AudioManager manager = (AudioManager)this.cordova.getActivity().getSystemService(Context.AUDIO_SERVICE);
-        int max = manager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        int volume = manager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        if (volume != 0) {
-            setVolume(AudioManager.STREAM_MUSIC, "Music", 0, callbackContext);
-        } else {
-            setVolume(AudioManager.STREAM_MUSIC, "Music", 50, callbackContext);
-        }
-    }
+			return volLevel;
+		} catch (Exception e){
+			LOG.d(TAG, "Error :- " + e);
+			return 1;
+		}
+	}
 
-    public void setMusicVolume(
-            int dataArray, 
-            CallbackContext callbackContext
-    ) {
-        setVolume(AudioManager.STREAM_MUSIC, "Music", dataArray, callbackContext);
-    }
+	private int getCurrentVolume() {
+		try {
+			int volLevel;
+			int maxVolume = manager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+			int currSystemVol = manager.getStreamVolume(AudioManager.STREAM_MUSIC);
+			volLevel = Math.round((currSystemVol * 100) / maxVolume);
 
-    public void setVolume(
-            int streamType,
-            String volumeType,
-            int volume,
-            CallbackContext callbackContext
-    ) {
-        AudioManager manager = (AudioManager)this.cordova.getActivity().getSystemService(Context.AUDIO_SERVICE);
-        int max = manager.getStreamMaxVolume(streamType);
-        int newVolume = volume;
-        if (volume != 0) {
-            double percent = (double)volume / 100;
-            newVolume = (int)(max * percent);
-        } else {
-            newVolume = 0;
-        }
-        manager.setStreamVolume(streamType, newVolume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
-
-        if (callbackContext != null) {
-            callbackContext.success(volume);
-        }
-    }
-
-
-    public void getVolume(int streamType, CallbackContext callbackContext) {
-        AudioManager manager = (AudioManager)this.cordova.getActivity().getSystemService(Context.AUDIO_SERVICE);
-        int max = manager.getStreamMaxVolume(streamType);
-        int volume = manager.getStreamVolume(streamType);
-        if (volume != 0) {
-            double percent = (double)volume / (double)max;
-            volume = (int)Math.round(percent * 100);
-        }
-        callbackContext.success(volume);
-    }
-
+			return volLevel;
+		} catch (Exception e) {
+			LOG.d(TAG, "Error :- " + e);
+			return 1;
+		}
+	}
 }
