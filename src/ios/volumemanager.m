@@ -1,63 +1,104 @@
 /**
  * volumemanager.m
+ * @author jmj for igs
  */
 
 #import <Cordova/CDV.h>
+#import <Cordova/CDVPlugin.h>
+#import <Cordova/CDVPluginResult.h>
 #import <AVFoundation/AVFoundation.h>
 #import <MediaPlayer/MediaPlayer.h>
 
 #ifdef DEBUG
-    #define DLog(fmt, ...) NSLog((@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define DLog(fmt, ...) NSLog((@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
-    #define DLog(...)
+#define DLog(...)
 #endif
 
 @interface volumemanager : CDVPlugin {
-  
+    NSString* changeCallbackId;
 }
 /**
-* Member Functions
-*/
-- (void)setMusicVolume:(CDVInvokedUrlCommand*)command;
+ * Member Functions
+ */
+
+- (void)bindVolumeChangeCallback:(CDVInvokedUrlCommand*)command;
 - (void)getMusicVolume:(CDVInvokedUrlCommand*)command;
+- (void)setMusicVolume:(CDVInvokedUrlCommand*)command;
+- (UISlider *)currentDeviceMPVolume;
 @end
 
 
 @implementation volumemanager
 
-- (void)setMusicVolume:(CDVInvokedUrlCommand*)command
-{
-    CDVPluginResult* pluginResult = nil;
-    float volume = [[command argumentAtIndex:0] floatValue];
+- (void) pluginInitialize {
+    DLog(@"plugin Initializer");
+    [super pluginInitialize];
+    [[AVAudioSession sharedInstance] setActive:YES error:nil];
+    [[AVAudioSession sharedInstance] addObserver:self forKeyPath:@"outputVolume" options:NSKeyValueObservingOptionNew context:nil];
+}
 
-    DLog(@"setMusicVolume: [%f]", volume);
+- (void) bindVolumeChangeCallback:(CDVInvokedUrlCommand*) command {
+    DLog(@"Bind outputVolume");
+    if (command.callbackId) {
+        DLog(@"Overriding volChangeCBack: %@!", command.callbackId);
+    }
+    changeCallbackId = command.callbackId;
+}
 
-    Class avSystemControllerClass = NSClassFromString(@"AVSystemController");
-    id avSystemControllerInstance = [avSystemControllerClass performSelector:@selector(sharedAVSystemController)];
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context {
+    if (changeCallbackId && [keyPath isEqual:@"outputVolume"]) {
+        [self getCurrentVolumeForCDV:changeCallbackId];
+    }
+}
 
-    NSInvocation *privateInvocation = [NSInvocation invocationWithMethodSignature:
-                                     [avSystemControllerClass instanceMethodSignatureForSelector:
-                                      @selector(setActiveCategoryVolumeTo:)]];
-    [privateInvocation setTarget:avSystemControllerInstance];
-    [privateInvocation setSelector:@selector(setActiveCategoryVolumeTo:)];
-    [privateInvocation setArgument:&volume atIndex:2];
-    [privateInvocation invoke];
-    BOOL result;
-    [privateInvocation getReturnValue:&result];
+- (void) getCurrentVolumeForCDV:(NSString*) callbackId {
+    CDVPluginResult* result = [self currentDeviceVolume];
+    [result setKeepCallback:[NSNumber numberWithBool:YES]];
+    [self.commandDelegate sendPluginResult: result callbackId:callbackId];
+}
 
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:result];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+- (CDVPluginResult*) currentDeviceVolume {
+    AVAudioSession* audioSession = [AVAudioSession sharedInstance];
+    float volume = audioSession.outputVolume;
+    return [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDouble:volume];
 }
 
 - (void)getMusicVolume:(CDVInvokedUrlCommand*)command
 {
-    CDVPluginResult* pluginResult = nil;
     DLog(@"getMusicVolume");
-
-    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
-
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDouble:audioSession.outputVolume];
+    CDVPluginResult* pluginResult = [self currentDeviceVolume];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void)setMusicVolume:(CDVInvokedUrlCommand*)command
+{
+    DLog(@"getMusicVolume");
+    float volume = [[command argumentAtIndex:0] floatValue];
+    
+    [self currentDeviceMPVolume].value = volume;
+    
+    CDVPluginResult* pluginResult = [self currentDeviceVolume];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (UISlider *)currentDeviceMPVolume {
+    DLog(@"currentDeviceMPVolume");
+    static UISlider * volumeViewSlider = nil;
+    if(volumeViewSlider == nil) {
+        MPVolumeView * volumeView = [[MPVolumeView alloc] initWithFrame:CGRectMake(10, 50, 200, 4)];
+        [volumeView setHidden:YES];
+        for(UIView *newView in volumeView.subviews) {
+            if([newView.class.description isEqualToString:@"MPVolume"]) {
+                volumeViewSlider = (UISlider *)newView;
+                break;
+            }
+        }
+    }
+    return volumeViewSlider;
 }
 
 @end
