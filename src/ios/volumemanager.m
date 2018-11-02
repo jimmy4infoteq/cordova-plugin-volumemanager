@@ -76,7 +76,7 @@
 
 - (void)setMusicVolume:(CDVInvokedUrlCommand*)command
 {
-    DLog(@"getMusicVolume");
+    DLog(@"setMusicVolume");
     float volume = [[command argumentAtIndex:0] floatValue];
     
     [self currentDeviceMPVolume].value = volume;
