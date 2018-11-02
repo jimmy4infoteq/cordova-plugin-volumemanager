@@ -31,6 +31,7 @@ public class volumemanager extends CordovaPlugin {
 	private AudioManager manager;
 	private static final int STREAM = AudioManager.STREAM_MUSIC;
 	private CallbackContext changedEventCallback = null;
+	private SettingsContentObserver observer;
 
 	/**
 	 * Plugin Initializer reloaded
@@ -41,6 +42,15 @@ public class volumemanager extends CordovaPlugin {
 	public void initialize (CordovaInterface cordova, CordovaWebView webView) {
 		super.initialize(cordova, webView);
 		context = super.cordova.getActivity().getApplicationContext();
+	}
+	/**
+	 * On Destory - parent destroy method plus removing the watch
+	 */
+	public void onDestroy()
+	{
+		super.onDestroy();
+		context.getContentResolver().unregisterContentObserver(observer);
+
 	}
 
 	/**
@@ -90,7 +100,7 @@ public class volumemanager extends CordovaPlugin {
 		else if (action.equals("bindVolumeChangeCallback")) {
 			try {
 				changedEventCallback = callbackContext;
-				SettingsContentObserver observer = new SettingsContentObserver(new Handler());
+				observer = new SettingsContentObserver(new Handler());
 				context.getContentResolver().registerContentObserver(System.CONTENT_URI, true, observer);
 				return true;
 			} catch (Exception e) {
