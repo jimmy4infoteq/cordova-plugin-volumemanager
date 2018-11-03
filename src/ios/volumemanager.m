@@ -50,12 +50,15 @@
                       ofObject:(id)object
                         change:(NSDictionary *)change
                        context:(void *)context {
+    DLog(@"withChange");
     if (changeCallbackId && [keyPath isEqual:@"outputVolume"]) {
+        
         [self getCurrentVolumeForCDV:changeCallbackId];
     }
 }
 
 - (void) getCurrentVolumeForCDV:(NSString*) callbackId {
+      DLog(@"getCurrentVolumeForCDV");
     CDVPluginResult* result = [self currentDeviceVolume];
     [result setKeepCallback:[NSNumber numberWithBool:YES]];
     [self.commandDelegate sendPluginResult: result callbackId:callbackId];
@@ -64,6 +67,7 @@
 - (CDVPluginResult*) currentDeviceVolume {
     AVAudioSession* audioSession = [AVAudioSession sharedInstance];
     float volume = audioSession.outputVolume;
+    DLog(@"currentDeviceVolumeREAD: %.2f", volume);
     return [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDouble:volume];
 }
 
@@ -98,6 +102,7 @@
             }
         }
     }
+    DLog(@"currentDeviceMPVolume: %@!", volumeViewSlider);
     return volumeViewSlider;
 }
 
