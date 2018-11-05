@@ -16,7 +16,7 @@
 #endif
 
 @interface volumemanager : CDVPlugin {
-    NSString* changeCallbackId;
+   NSString* changeCallbackId;
 }
 /**
  * Member Functions
@@ -34,8 +34,10 @@
 - (void) pluginInitialize {
     DLog(@"plugin Initializer");
     [super pluginInitialize];
+    [self removeBindVolumeChange];
     [[AVAudioSession sharedInstance] setActive:YES error:nil];
-    [[AVAudioSession sharedInstance] addObserver:self forKeyPath:@"outputVolume" options:NSKeyValueObservingOptionNew context:nil];
+    [[AVAudioSession sharedInstance] addObserver:self forKeyPath:@"outputVolume" options:0 context:nil];
+    DLog(@"End- plugin Init");
 }
 
 - (void) bindVolumeChangeCallback:(CDVInvokedUrlCommand*) command {
@@ -44,6 +46,7 @@
         DLog(@"Overriding volChangeCBack: %@!", command.callbackId);
     }
     changeCallbackId = command.callbackId;
+
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath
@@ -57,8 +60,17 @@
     }
 }
 
+- (void)removeBindVolumeChange
+{
+    @try
+    {
+        [[AVAudioSession sharedInstance] removeObserver:self forKeyPath:@"outputVolume"];
+    }
+    @catch(id anException) { }
+}
+
 - (void) getCurrentVolumeForCDV:(NSString*) callbackId {
-      DLog(@"getCurrentVolumeForCDV");
+    DLog(@"getCurrentVolumeForCDV");
     CDVPluginResult* result = [self currentDeviceVolume];
     [result setKeepCallback:[NSNumber numberWithBool:YES]];
     [self.commandDelegate sendPluginResult: result callbackId:callbackId];
@@ -90,10 +102,11 @@
 }
 
 - (UISlider *)currentDeviceMPVolume {
-    DLog(@"currentDeviceMPVolume");
+    DLog(@"currentDeviceMPVolume"); 
     static UISlider * volumeViewSlider = nil;
     if(volumeViewSlider == nil) {
         MPVolumeView * volumeView = [[MPVolumeView alloc] initWithFrame:CGRectMake(10, 50, 200, 4)];
+        DLog(@"currentDeviceMPVolume: %@!", volumeView);
         [volumeView setHidden:YES];
         for(UIView *newView in volumeView.subviews) {
             if([newView.class.description isEqualToString:@"MPVolume"]) {
@@ -102,7 +115,7 @@
             }
         }
     }
-    DLog(@"currentDeviceMPVolume: %@!", volumeViewSlider);
+    DLog(@"currentDeviceMPVolumeViewSlider: %@!", volumeViewSlider);
     return volumeViewSlider;
 }
 
