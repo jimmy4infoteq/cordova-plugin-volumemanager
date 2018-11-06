@@ -35,7 +35,7 @@
     ```
 3. To register a volume watch
     
-    This one has to do it only in the `deviceready` once so that to get the callback fired with every volume change.
+    We have to do it only once in the `deviceready` so that to get the callback fired with every volume change.
     
     ```
     cordova.plugins.volumemanager.bindVolumeChangeCallback(null,function(volume){
