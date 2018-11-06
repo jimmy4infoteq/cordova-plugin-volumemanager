@@ -4,11 +4,11 @@
 
 ## Get it set up
 
-1. `cordova plugin add https://github.com/jimmy4infoteq/cordova-plugin-volumemanager.git`
+    `cordova plugin add https://github.com/jimmy4infoteq/cordova-plugin-volumemanager.git`
 
-## Remove it using
+## How to Remove it
 
-1. `cordova plugin remove cordova-plugin-volumemanager`
+    `cordova plugin remove cordova-plugin-volumemanager`
 
 ## How this can be used in Javascript
 
