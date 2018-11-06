@@ -3,13 +3,13 @@
 * This plugin is to manage volume on Cordova Apps on both Android and iOS
 * Volume is treated as a value between 0.0 to 1.0
 
-## Get it set up
+## How to add it to the Cordova project
 
   
     cordova plugin add https://github.com/jimmy4infoteq/cordova-plugin-volumemanager.git
     
 
-## How to Remove it
+## How to Remove it from Cordova project
 
     
     cordova plugin remove cordova-plugin-volumemanager
