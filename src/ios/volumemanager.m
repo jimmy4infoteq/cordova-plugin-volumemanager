@@ -33,9 +33,11 @@
 - (UISlider *)currentDeviceMPVolume;
 @end
 
-
 @implementation volumemanager
 
+/**
+ * Init of the plugin
+ */
 - (void) pluginInitialize {
     DLog(@"plugin Initializer");
     [super pluginInitialize];
@@ -43,6 +45,10 @@
     DLog(@"End- plugin Init");
 }
 
+/**
+ * Bind the function to be calledback(JS) on volume change detected
+ * Called initially from javascript if you would like a Watch-On-Volume
+ */
 - (void) bindVolumeChangeCallback:(CDVInvokedUrlCommand*) command {
     DLog(@"Bind outputVolume");
     [self addAnMPVolViewToApp];
@@ -70,6 +76,9 @@
     }
 }
 
+/**
+ * Watch callback from the device
+ */
 - (void)observeValueForKeyPath:(NSString *)keyPath
                       ofObject:(id)object
                         change:(NSDictionary *)change
@@ -83,12 +92,20 @@
 
     [self doBindVolumeChange];
 }
+
+/**
+ * Registering the volume Watch
+ */
 - (void) doBindVolumeChange
 {
     [self removeBindVolumeChange];
     [[AVAudioSession sharedInstance] setActive:YES error:nil];
     [[AVAudioSession sharedInstance] addObserver:self forKeyPath:@"outputVolume" options:0 context:nil];
 }
+
+/**
+ * Unregister volume watch
+ */
 - (void)removeBindVolumeChange
 {
     @try
@@ -101,6 +118,9 @@
     }
 }
 
+/**
+ * Get current volume and trigger the javascript callback with the current volume
+ */
 - (void) getCurrentVolumeForCDV:(NSString*) callbackId {
     DLog(@"getCurrentVolumeForCDV");
     CDVPluginResult* result = [self currentDeviceVolume];
@@ -108,6 +128,9 @@
     [self.commandDelegate sendPluginResult: result callbackId:callbackId];
 }
 
+/**
+ * Get the current volume as a CDVPluginResult
+ */
 - (CDVPluginResult*) currentDeviceVolume {
     AVAudioSession* audioSession = [AVAudioSession sharedInstance];
     float volume = audioSession.outputVolume;
@@ -115,12 +138,18 @@
     return [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDouble:volume];
 }
 
+/**
+ * Get current bare device volume as a float
+ */
 - (float) bareCurrentDeviceVolume {
     AVAudioSession* audioSession = [AVAudioSession sharedInstance];
     float volume = audioSession.outputVolume;
     return volume;
 }
 
+/**
+ * getMusicVolume endpoint, which responds giving back current volume
+ */
 - (void)getMusicVolume:(CDVInvokedUrlCommand*)command
 {
     DLog(@"getMusicVolume");
@@ -128,6 +157,9 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+/**
+ * setMusicVolume endpoint, which sets the volume
+ */
 - (void)setMusicVolume:(CDVInvokedUrlCommand*)command
 {
     DLog(@"setMusicVolume");
@@ -139,6 +171,9 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+/**
+ * Add an MPVolumeView to set the volume, it gets triggered at first
+ */
 - (void)addAnMPVolViewToApp
 {
     if (mpVolumeViewParentView != NULL) {  return; }
@@ -150,6 +185,9 @@
     [sopVolumeView setHidden:YES];
 }
 
+/*
+ * Get slider of the current MPVolumeView
+ */
 - (UISlider *)currentDeviceMPVolume {
     static UISlider *volumeViewSlider = nil;
     if(volumeViewSlider == nil) {
