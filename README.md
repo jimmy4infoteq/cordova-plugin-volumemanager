@@ -14,11 +14,11 @@
 ## How this can be used in Javascript
 
 1. To get the current Music Volume
-    cordova.plugins.volumemanager.getMusicVolume(null, function(volume){
-        console.log(volume);
-    },function(err){
-        console.log(err);
-    });
+    `cordova.plugins.volumemanager.getMusicVolume(null, function(volume){`
+        `console.log(volume);`
+    `},function(err){`
+        `console.log(err);`
+    `});`
 2. To set the Music Volume
     `cordova.plugins.volumemanager.setMusicVolume(0.5,function(volume){
         console.log(volume);
