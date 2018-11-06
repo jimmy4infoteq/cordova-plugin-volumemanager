@@ -5,11 +5,15 @@
 
 ## Get it set up
 
-    `cordova plugin add https://github.com/jimmy4infoteq/cordova-plugin-volumemanager.git`
+    ```
+    cordova plugin add https://github.com/jimmy4infoteq/cordova-plugin-volumemanager.git
+    ```
 
 ## How to Remove it
 
-    `cordova plugin remove cordova-plugin-volumemanager`
+    ```
+    cordova plugin remove cordova-plugin-volumemanager
+    ```
 
 ## How this can be used in Javascript
 
