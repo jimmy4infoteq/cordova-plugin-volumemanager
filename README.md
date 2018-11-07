@@ -18,7 +18,7 @@
 ## How this can be used in Javascript
 
 1. To get the current Music Volume
-    ```
+    ```js
     cordova.plugins.volumemanager.getMusicVolume(null, function(volume){
         console.log(volume);
     },function(err){
@@ -26,7 +26,7 @@
     });
     ```
 2. To set the Music Volume
-    ```
+    ```js
     cordova.plugins.volumemanager.setMusicVolume(0.5,function(volume){
         console.log(volume);
     },function(err){
@@ -37,7 +37,7 @@
     
     We have to do it only once in the `deviceready` so that to get the callback fired with every volume change.
     
-    ```
+    ```js
     cordova.plugins.volumemanager.bindVolumeChangeCallback(null,function(volume){
         console.log(volume);
     },function(err){
